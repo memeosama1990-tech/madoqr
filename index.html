@@ -1,227 +1,239 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mado QR Studio | Ultra Light Edition</title>
+    <title>MaDo QR Pro | Final Stable Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background: #020617; color: white; min-height: 100vh; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-field { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 12px; width: 100%; outline: none; color: white; font-size: 13px; }
-        .active-tab { background: #3b82f6 !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
-        .iphone-frame { width: 260px; height: 500px; border: 8px solid #1e293b; border-radius: 35px; position: relative; overflow: hidden; background: #0f172a; margin: 0 auto; }
-        .iphone-notch { width: 100px; height: 18px; background: #1e293b; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 10; }
-        .bio-btn-preview { width: 100%; padding: 8px; border-radius: 10px; margin-bottom: 6px; font-size: 10px; font-weight: bold; text-align: center; color: white; display: block; }
-        .contact-pill { padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.1); font-size: 8px; color: white; border: 1px solid rgba(255,255,255,0.1); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-field { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 12px; width: 100%; color: white; outline: none; font-size: 13px; }
+        .active-tab { background: linear-gradient(135deg, #3b82f6, #6366f1) !important; color: white !important; }
+        .iphone-frame { width: 270px; height: 540px; border: 10px solid #1e293b; border-radius: 40px; position: relative; overflow: hidden; background: #0f172a; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .iphone-notch { width: 110px; height: 20px; background: #1e293b; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; z-index: 10; }
+        .bio-btn-preview { width: 100%; padding: 10px; border-radius: 12px; margin-bottom: 8px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; }
     </style>
 </head>
-<body class="p-4 lg:p-10">
-    <div id="creator-ui" class="max-w-7xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 italic">MaDo QR Pro</h1>
-            <p class="text-gray-500 text-[10px] mt-2 uppercase tracking-widest">Ultra-Light Minimalist Design</p>
-        </header>
+<body class="p-4">
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div class="lg:col-span-4 space-y-4">
-                <div class="glass p-5 rounded-[2rem]">
-                    <div class="flex p-1 bg-black/40 rounded-xl gap-1 mb-4 overflow-x-auto">
-                        <button onclick="switchTab('url')" id="tab-url" class="tab-btn flex-1 py-2 rounded-lg text-[10px] font-bold transition">رابط</button>
-                        <button onclick="switchTab('vcard')" id="tab-vcard" class="tab-btn active-tab flex-1 py-2 rounded-lg text-[10px] font-bold transition">vCard</button>
-                        <button onclick="switchTab('wifi')" id="tab-wifi" class="tab-btn flex-1 py-2 rounded-lg text-[10px] font-bold transition">WiFi</button>
-                        <button onclick="switchTab('bio')" id="tab-bio" class="tab-btn flex-1 py-2 rounded-lg text-[10px] font-bold transition text-yellow-400">Identity</button>
-                    </div>
-                    <div id="dynamic-fields" class="space-y-3"></div>
-                </div>
+<div id="creator-ui" class="max-w-7xl mx-auto">
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 italic">MaDo QR Pro</h1>
+    </header>
 
-                <div class="glass p-5 rounded-[2rem] space-y-3">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase italic">خيارات التخصيص</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="color" id="qr-fill" value="#3b82f6" oninput="generateFinalMadoQR()" class="w-full h-8 bg-transparent cursor-pointer">
-                        <input type="color" id="qr-bg" value="#ffffff" oninput="generateFinalMadoQR()" class="w-full h-8 bg-transparent cursor-pointer">
-                    </div>
-                    <select id="dot-style" onchange="generateFinalMadoQR()" class="input-field text-xs">
-                        <option value="extra-rounded">نقاط انسيابية متباعدة</option>
-                        <option value="dots">نقاط دائرية صغيرة</option>
-                        <option value="classy">ستايل الخطوط</option>
-                        <option value="square">مربعات بسيطة</option>
-                    </select>
-                    <button onclick="generateFinalMadoQR()" class="w-full bg-blue-600 p-4 rounded-xl font-black text-lg shadow-lg hover:bg-blue-500 transition-all">انشاء باركود </button>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-4 space-y-4">
+            <div class="glass p-5 rounded-[2rem]">
+                <div class="flex p-1 bg-black/40 rounded-xl gap-1 mb-4 overflow-x-auto">
+                    <button onclick="switchTab('url')" id="tab-url" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">رابط</button>
+                    <button onclick="switchTab('vcard')" id="tab-vcard" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">vCard</button>
+                    <button onclick="switchTab('wifi')" id="tab-wifi" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">WiFi</button>
+                    <button onclick="switchTab('bio')" id="tab-bio" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition text-yellow-500">Identity</button>
                 </div>
+                <div id="dynamic-fields" class="space-y-3"></div>
             </div>
 
-            <div class="lg:col-span-4">
-                <div id="preview-section" class="transition-all duration-500">
-                    <div class="iphone-frame" id="live-bg">
-                        <div class="iphone-notch"></div>
-                        <div id="preview-content" class="p-6 pt-12 flex flex-col h-full overflow-y-auto"></div>
+            <div class="glass p-5 rounded-[2rem] space-y-3">
+                <span class="text-[10px] font-bold text-gray-500 uppercase">التخصيص والشكل</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-1">
+                        <label class="text-[9px] text-gray-500">لون النقاط</label>
+                        <input type="color" id="qr-fill" value="#3b82f6" class="w-full h-8 bg-transparent cursor-pointer">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] text-gray-500">الخلفية</label>
+                        <input type="color" id="qr-bg" value="#ffffff" class="w-full h-8 bg-transparent cursor-pointer">
                     </div>
                 </div>
-            </div>
-
-            <div class="lg:col-span-4 flex flex-col items-center justify-center">
-                <div id="qr-target" class="bg-white p-6 rounded-[2.5rem] shadow-2xl hidden"></div>
-                <div id="qr-placeholder" class="text-gray-800 border-2 border-dashed border-gray-800 p-20 rounded-[2.5rem] text-sm italic text-center">سيظهر الباركود<br>بنقاط خفيفة هنا</div>
                 
-                <div id="dl-group" class="hidden flex gap-2 mt-6 w-full max-w-[240px]">
-                    <button onclick="downloadQR('png')" class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-xs hover:bg-gray-100">PNG</button>
-                    <button onclick="downloadQR('svg')" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold text-xs hover:bg-blue-400">SVG</button>
-                </div>
+                <select id="dot-style" class="input-field text-xs">
+                    <option value="extra-rounded">نقاط انسيابية</option>
+                    <option value="dots">نقاط دائرية</option>
+                    <option value="classy-rounded">نقاط كلاسيك</option>
+                    <option value="square">مربعات</option>
+                </select>
+
+                <label class="text-[9px] text-blue-400 font-bold block">لوجو وسط الباركود:</label>
+                <input type="file" id="qr-logo" accept="image/*" class="input-field text-[10px]">
+                
+                <button onclick="generateFinalMadoQR()" class="w-full bg-blue-600 p-4 rounded-xl font-black hover:bg-blue-500 transition-all shadow-lg">توليد الباركود ✨</button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4">
+            <div class="iphone-frame" id="live-bg">
+                <div class="iphone-notch"></div>
+                <div id="preview-content" class="p-6 pt-12 flex flex-col h-full overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 flex flex-col items-center">
+            <div id="qr-target" class="bg-white p-6 rounded-[2.5rem] hidden shadow-2xl"></div>
+            <div id="qr-placeholder" class="glass border-2 border-dashed border-gray-800 p-20 rounded-[2.5rem] text-sm text-center text-gray-500">الباركود سيظهر هنا</div>
+            <div id="dl-group" class="hidden flex gap-2 mt-6 w-full max-w-[240px]">
+                <button onclick="downloadQR('png')" class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-xs">PNG</button>
+                <button onclick="downloadQR('svg')" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold text-xs">SVG</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="viewer-ui" class="hidden min-h-screen flex flex-col items-center p-10 text-center">
-        <div id="v-icon" class="w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-4 shadow-xl">👤</div>
-        <h2 id="v-name" class="text-3xl font-black"></h2>
-        <p id="v-desc" class="text-sm opacity-70 mt-2 mb-8 max-w-sm leading-relaxed"></p>
-        <div id="v-links" class="w-full max-w-sm px-4"></div>
-        <div id="v-contacts" class="flex flex-wrap justify-center gap-3 mt-10"></div>
-    </div>
+<div id="viewer-ui" class="hidden min-h-screen flex flex-col items-center p-8 text-center">
+    <div id="v-img-box" class="mb-4"></div>
+    <h2 id="v-name" class="text-3xl font-black"></h2>
+    <p id="v-desc" class="text-sm opacity-80 mt-2 mb-8 max-w-sm"></p>
+    <div id="v-links" class="w-full max-w-sm space-y-3"></div>
+</div>
 
-    <script>
-        let qrCode;
-        let currentTab = 'vcard';
+<script>
+    let qrCode;
+    let currentTab = 'url';
+    let identityLogo = "";
 
-        const fields = {
-            url: `<input type="text" id="m-url" placeholder="https://..." class="input-field">`,
-            wifi: `<input type="text" id="w-ssid" placeholder="اسم الشبكة" class="input-field"><input type="password" id="w-pass" placeholder="الرمز" class="input-field">`,
-            vcard: `<div class="space-y-2">
-                    <input type="text" id="vc-fn" oninput="live()" placeholder="الاسم الكامل" class="input-field">
-                    <input type="text" id="vc-tel" oninput="live()" placeholder="رقم الجوال" class="input-field">
-                    <input type="text" id="vc-em" oninput="live()" placeholder="البريد الإلكتروني" class="input-field">
-                    <input type="text" id="vc-org" oninput="live()" placeholder="الشركة" class="input-field">
-                    <input type="text" id="vc-tit" oninput="live()" placeholder="المنصب" class="input-field">
-                  </div>`,
-            bio: `<div class="space-y-3">
-                    <div class="flex gap-2"><input type="color" id="acc-c" oninput="live()" value="#3b82f6" class="w-1/2 h-8 bg-transparent"><input type="color" id="bg-c" oninput="live()" value="#0f172a" class="w-1/2 h-8 bg-transparent"></div>
-                    <input type="text" id="b-n" oninput="live()" placeholder="الاسم" class="input-field">
-                    <textarea id="b-d" oninput="live()" placeholder="النبذة..." class="input-field h-14"></textarea>
-                    <div id="l-box" class="space-y-1"><div class="flex gap-1"><input type="text" oninput="live()" placeholder="اسم الرابط" class="ln input-field text-[10px]"><input type="text" placeholder="URL" class="lu input-field text-[10px]"></div></div>
-                    <button onclick="addR('l-box')" class="text-[10px] text-blue-400">+ رابط</button>
-                    <div id="c-box" class="space-y-1 mt-2"><div class="flex gap-1"><input type="text" oninput="live()" placeholder="واتساب" class="cn input-field text-[10px]"><input type="text" oninput="live()" placeholder="الرقم" class="cv input-field text-[10px]"></div></div>
-                  </div>`
-        };
+    const fields = {
+        url: `<input type="text" id="m-url" oninput="live()" placeholder="https://example.com" class="input-field">`,
+        wifi: `<input type="text" id="w-ssid" oninput="live()" placeholder="اسم الشبكة (SSID)" class="input-field">
+               <input type="password" id="w-pass" oninput="live()" placeholder="كلمة المرور" class="input-field">`,
+        vcard: `<div class="space-y-2">
+            <input type="text" id="vc-fn" oninput="live()" placeholder="الاسم الكامل" class="input-field">
+            <input type="text" id="vc-tel" oninput="live()" placeholder="رقم الجوال" class="input-field">
+            <input type="text" id="vc-em" oninput="live()" placeholder="البريد الإلكتروني" class="input-field">
+            <input type="text" id="vc-org" oninput="live()" placeholder="الشركة" class="input-field">
+        </div>`,
+        bio: `<div class="space-y-2">
+            <div class="flex gap-2"><input type="color" id="acc-c" oninput="live()" value="#3b82f6" class="w-1/2 h-8"><input type="color" id="bg-c" oninput="live()" value="#0f172a" class="w-1/2 h-8"></div>
+            <label class="text-[9px] text-gray-400">صورة الهوية (Identity Logo):</label>
+            <input type="file" onchange="loadIdImg(this)" class="input-field text-[10px]">
+            <input type="text" id="b-n" oninput="live()" placeholder="الاسم" class="input-field">
+            <textarea id="b-d" oninput="live()" placeholder="النبذة التعريفية..." class="input-field h-16"></textarea>
+            <div id="links-area" class="space-y-1">
+                <div class="flex gap-1"><input type="text" oninput="live()" placeholder="اسم الرابط" class="ln input-field text-[10px]"><input type="text" oninput="live()" placeholder="URL" class="lu input-field text-[10px]"></div>
+            </div>
+            <button onclick="addLinkRow()" class="text-[10px] text-blue-400 font-bold">+ رابط إضافي</button>
+        </div>`
+    };
 
-        function switchTab(t) {
-            currentTab = t;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById('tab-'+t).classList.add('active-tab');
-            document.getElementById('dynamic-fields').innerHTML = fields[t];
-            live();
+    function switchTab(t) {
+        currentTab = t;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+        document.getElementById('tab-'+t).classList.add('active-tab');
+        document.getElementById('dynamic-fields').innerHTML = fields[t];
+        live();
+    }
+
+    function addLinkRow() {
+        const div = document.createElement('div'); div.className = "flex gap-1 mt-1";
+        div.innerHTML = `<input type="text" oninput="live()" placeholder="الاسم" class="ln input-field text-[10px]"><input type="text" oninput="live()" placeholder="URL" class="lu input-field text-[10px]">`;
+        document.getElementById('links-area').appendChild(div);
+    }
+
+    async function loadIdImg(input) {
+        if (input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => { identityLogo = e.target.result; live(); };
+            reader.readAsDataURL(input.files[0]);
         }
+    }
 
-        function addR(id) {
-            const div = document.createElement('div'); div.className = "flex gap-1 mt-1";
-            const cl = id==='l-box'?['ln','lu']:['cn','cv'];
-            div.innerHTML = `<input type="text" oninput="live()" placeholder="الاسم" class="${cl[0]} input-field text-[10px]"><input type="text" placeholder="البيانات" class="${cl[1]} input-field text-[10px]">`;
-            document.getElementById(id).appendChild(div);
-        }
+    function getSocialIcon(u) {
+        u = u.toLowerCase();
+        if(u.includes('facebook')) return 'fa-brands fa-facebook';
+        if(u.includes('instagram')) return 'fa-brands fa-instagram';
+        if(u.includes('twitter') || u.includes('x.com')) return 'fa-brands fa-x-twitter';
+        if(u.includes('linkedin')) return 'fa-brands fa-linkedin';
+        if(u.includes('whatsapp')) return 'fa-brands fa-whatsapp';
+        return 'fa-solid fa-link';
+    }
 
-        function live() {
-            const content = document.getElementById('preview-content');
-            const bg = document.getElementById('live-bg');
-            content.innerHTML = "";
-            bg.style.backgroundColor = "#0f172a";
+    function live() {
+        const content = document.getElementById('preview-content');
+        const bg = document.getElementById('live-bg');
+        content.innerHTML = "";
+        bg.style.backgroundColor = "#0f172a";
 
-            if(currentTab === 'vcard') {
-                const n = document.getElementById('vc-fn').value || "الاسم";
-                content.innerHTML = `<div class="m-auto text-center w-full">
-                    <div class="w-16 h-16 bg-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl shadow-xl">👤</div>
-                    <h4 class="font-bold text-lg">${n}</h4>
-                    <p class="text-blue-400 text-xs mt-1">${document.getElementById('vc-tit').value || "المنصب الوظيفي"}</p>
-                    <div class="mt-6 space-y-2 px-4">
-                        <div class="glass p-3 rounded-xl text-[10px] text-left">📱 ${document.getElementById('vc-tel').value || '---'}</div>
-                        <div class="glass p-3 rounded-xl text-[10px] text-left">📧 ${document.getElementById('vc-em').value || '---'}</div>
-                    </div>
-                </div>`;
-            } else if(currentTab === 'bio') {
-                const acc = document.getElementById('acc-c').value;
-                bg.style.backgroundColor = document.getElementById('bg-c').value;
-                let html = `<div class="w-14 h-14 rounded-2xl mx-auto mb-3 shadow-xl" style="background:${acc}"></div>`;
-                html += `<h4 class="font-bold text-sm text-center">${document.getElementById('b-n').value || "الاسم"}</h4>`;
-                const desc = document.getElementById('b-d').value;
-                if(desc) html += `<p class="text-[9px] text-gray-400 text-center mt-2 px-6">${desc}</p>`;
-                html += `<div class="mt-6 space-y-2">`;
-                Array.from(document.querySelectorAll('.ln')).forEach(input => {
-                    if(input.value) html += `<div class="bio-btn-preview shadow-sm" style="background:${acc}">${input.value}</div>`;
-                });
-                html += `</div><div class="mt-auto flex flex-wrap justify-center gap-2 pb-6">`;
-                Array.from(document.querySelectorAll('.cn')).forEach(input => {
-                    if(input.value) html += `<span class="contact-pill">${input.value}</span>`;
-                });
-                html += `</div>`;
-                content.innerHTML = html;
-            }
-        }
-
-        function generateFinalMadoQR() {
-            let txt = "";
-            if(currentTab === 'url') txt = document.getElementById('m-url').value;
-            else if(currentTab === 'wifi') txt = `WIFI:S:${document.getElementById('w-ssid').value};P:${document.getElementById('w-pass').value};;`;
-            else if(currentTab === 'vcard') {
-                // لتقليل النقاط 60% في vCard نكتفي بالبيانات الأساسية للتخزين
-                txt = `BEGIN:VCARD\nFN:${document.getElementById('vc-fn').value}\nTEL:${document.getElementById('vc-tel').value}\nEND:VCARD`;
-            } else if(currentTab === 'bio') {
-                // تقليل حجم الـ Object ليظل الباركود "خفيفاً"
-                const d = { 
-                    n:document.getElementById('b-n').value, 
-                    d:document.getElementById('b-d').value, 
-                    a:document.getElementById('acc-c').value, 
-                    b:document.getElementById('bg-c').value,
-                    l:Array.from(document.querySelectorAll('#l-box .flex')).map(r=>({n:r.querySelector('.ln').value, u:r.querySelector('.lu').value})).filter(x=>x.n),
-                    t:Array.from(document.querySelectorAll('#c-box .flex')).map(r=>({n:r.querySelector('.cn').value, v:r.querySelector('.cv').value})).filter(x=>x.n)
-                };
-                txt = window.location.href.split('#')[0] + "#" + btoa(unescape(encodeURIComponent(JSON.stringify(d))));
-            }
-
-            if(!txt) return;
-
-            const target = document.getElementById('qr-target');
-            target.innerHTML = "";
-            target.classList.remove('hidden');
-            document.getElementById('qr-placeholder').classList.add('hidden');
-            document.getElementById('dl-group').classList.remove('hidden');
-
-            qrCode = new QRCodeStyling({
-                width: 280,
-                height: 280,
-                data: txt,
-                qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'L' }, // سر البساطة
-                dotsOptions: { 
-                    color: document.getElementById('qr-fill').value, 
-                    type: document.getElementById('dot-style').value,
-                },
-                backgroundOptions: { color: document.getElementById('qr-bg').value },
-                cornersSquareOptions: { type: 'extra-rounded', color: document.getElementById('qr-fill').value },
-                cornersDotOptions: { type: 'dot', color: document.getElementById('qr-fill').value }
+        if(currentTab === 'url') {
+            content.innerHTML = `<div class="m-auto text-center opacity-40 text-[10px]">${document.getElementById('m-url').value || 'أدخل الرابط'}</div>`;
+        } else if(currentTab === 'wifi') {
+            content.innerHTML = `<div class="m-auto text-center"><div class="text-3xl mb-2">📶</div><div class="font-bold">${document.getElementById('w-ssid').value || 'WiFi Name'}</div></div>`;
+        } else if(currentTab === 'vcard') {
+            content.innerHTML = `<div class="m-auto text-center w-full"><div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl">👤</div><h4 class="font-bold">${document.getElementById('vc-fn').value || "الاسم"}</h4></div>`;
+        } else if(currentTab === 'bio') {
+            const acc = document.getElementById('acc-c').value;
+            bg.style.backgroundColor = document.getElementById('bg-c').value;
+            let html = identityLogo ? `<img src="${identityLogo}" class="w-16 h-16 rounded-2xl mx-auto mb-4 object-cover shadow-lg">` : `<div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl" style="background:${acc}">👤</div>`;
+            html += `<h4 class="font-bold text-center">${document.getElementById('b-n').value || "الاسم"}</h4>`;
+            html += `<p class="text-[9px] text-center opacity-70 mt-2 px-4">${document.getElementById('b-d').value || ""}</p>`;
+            html += `<div class="mt-6 space-y-2">`;
+            document.querySelectorAll('.ln').forEach((n, i) => {
+                if(n.value) html += `<div class="bio-btn-preview" style="background:${acc}"><i class="${getSocialIcon(document.querySelectorAll('.lu')[i].value)}"></i> ${n.value}</div>`;
             });
-            qrCode.append(target);
+            content.innerHTML = html + `</div>`;
+        }
+    }
+
+    async function generateFinalMadoQR() {
+        let txt = "";
+        if(currentTab === 'url') txt = document.getElementById('m-url').value;
+        else if(currentTab === 'wifi') txt = `WIFI:S:${document.getElementById('w-ssid').value};P:${document.getElementById('w-pass').value};;`;
+        else if(currentTab === 'vcard') {
+            txt = `BEGIN:VCARD\nVERSION:3.0\nFN:${document.getElementById('vc-fn').value}\nTEL:${document.getElementById('vc-tel').value}\nEMAIL:${document.getElementById('vc-em').value}\nORG:${document.getElementById('vc-org').value}\nEND:VCARD`;
+        } else if(currentTab === 'bio') {
+            // ضغط مبدئي للبيانات لتجنب كسر الباركود
+            const data = { 
+                n: document.getElementById('b-n').value, 
+                d: document.getElementById('b-d').value, 
+                a: document.getElementById('acc-c').value, 
+                b: document.getElementById('bg-c').value, 
+                i: identityLogo.length > 3000 ? "img-too-large" : identityLogo, // حد أمان للـ Base64
+                l: Array.from(document.querySelectorAll('.ln')).map((n, i) => ({ n: n.value, u: document.querySelectorAll('.lu')[i].value })).filter(x => x.n) 
+            };
+            if(data.i === "img-too-large") alert("تنبيه: صورة الهوية كبيرة جداً، قد لا يعمل الباركود بشكل جيد. يفضل استخدام صور صغيرة الحجم.");
+            txt = window.location.href.split('#')[0] + "#" + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
         }
 
-        function downloadQR(ext) { qrCode.download({ name: "Mado_QR", extension: ext }); }
+        if(!txt) { alert("أدخل بيانات أولاً"); return; }
 
-        function checkViewer() {
-            const h = window.location.hash.substring(1);
-            if(h && h.length > 30) {
-                try {
-                    const d = JSON.parse(decodeURIComponent(escape(atob(h))));
-                    document.getElementById('creator-ui').style.display='none';
-                    document.getElementById('viewer-ui').classList.remove('hidden');
-                    document.body.style.background = d.b;
-                    document.getElementById('v-icon').style.backgroundColor = d.a;
-                    document.getElementById('v-name').innerText = d.n;
-                    document.getElementById('v-desc').innerText = d.d;
-                    document.getElementById('v-links').innerHTML = d.l.map(l => `<a href="${l.u}" class="w-full block p-4 rounded-2xl mb-3 font-bold text-white shadow-lg" style="background:${d.a}">${l.n}</a>`).join('');
-                } catch(e) {}
-            }
+        const logoFile = document.getElementById('qr-logo').files[0];
+        let qrLogo = logoFile ? await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result); rd.readAsDataURL(logoFile); }) : "";
+
+        const target = document.getElementById('qr-target');
+        target.innerHTML = ""; target.classList.remove('hidden');
+        document.getElementById('qr-placeholder').classList.add('hidden');
+        document.getElementById('dl-group').classList.remove('hidden');
+
+        qrCode = new QRCodeStyling({
+            width: 280, height: 280, data: txt,
+            qrOptions: { errorCorrectionLevel: 'H', typeNumber: 0 },
+            image: qrLogo,
+            dotsOptions: { color: document.getElementById('qr-fill').value, type: document.getElementById('dot-style').value },
+            backgroundOptions: { color: document.getElementById('qr-bg').value },
+            imageOptions: { imageSize: 0.4, margin: 5, crossOrigin: "anonymous" }
+        });
+        qrCode.append(target);
+    }
+
+    function downloadQR(ext) { qrCode.download({ name: "MaDo_QR", extension: ext }); }
+
+    window.onload = () => {
+        switchTab('url');
+        const h = window.location.hash.substring(1);
+        if(h && h.length > 50) {
+            try {
+                const d = JSON.parse(decodeURIComponent(escape(atob(h))));
+                document.getElementById('creator-ui').style.display='none';
+                document.getElementById('viewer-ui').classList.remove('hidden');
+                document.body.style.background = d.b;
+                document.getElementById('v-img-box').innerHTML = (d.i && d.i !== "img-too-large") ? `<img src="${d.i}" class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl object-cover">` : `<div class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl flex items-center justify-center text-4xl" style="background:${d.a}">👤</div>`;
+                document.getElementById('v-name').innerText = d.n;
+                document.getElementById('v-desc').innerText = d.d;
+                document.getElementById('v-links').innerHTML = d.l.map(l => `<a href="${l.u}" class="w-full block p-4 rounded-2xl font-bold text-white shadow-lg text-center" style="background:${d.a}"><i class="${getSocialIcon(l.u)} ml-2"></i> ${l.n}</a>`).join('');
+            } catch(e) { console.error("Identity Error"); }
         }
-
-        window.onload = () => { switchTab('vcard'); checkViewer(); };
-    </script>
+    };
+</script>
 </body>
 </html>
