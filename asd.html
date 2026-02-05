@@ -16,6 +16,12 @@
         .iphone-frame { width: 270px; height: 540px; border: 10px solid #1e293b; border-radius: 40px; position: relative; overflow: hidden; background: #0f172a; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .iphone-notch { width: 110px; height: 20px; background: #1e293b; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; z-index: 10; }
         .bio-btn-preview { width: 100%; padding: 10px; border-radius: 12px; margin-bottom: 8px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; }
+        
+        /* التنسيقات الخاصة بشبكة المنصات */
+        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; }
+        .preset-btn { aspect-ratio: 1/1; padding: 6px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .preset-btn img { width: 100%; height: 100%; object-fit: contain; }
+        .selected-preset { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.2) !important; }
     </style>
 </head>
 <body class="p-4">
@@ -30,6 +36,7 @@
             <div class="glass p-5 rounded-[2rem]">
                 <div class="flex p-1 bg-black/40 rounded-xl gap-1 mb-4 overflow-x-auto">
                     <button onclick="switchTab('url')" id="tab-url" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">رابط</button>
+                    <button onclick="switchTab('social')" id="tab-social" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">التواصل الاجتماعي</button>
                     <button onclick="switchTab('vcard')" id="tab-vcard" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">vCard</button>
                     <button onclick="switchTab('wifi')" id="tab-wifi" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition">WiFi</button>
                     <button onclick="switchTab('bio')" id="tab-bio" class="tab-btn flex-1 py-2 px-3 rounded-lg text-[10px] font-bold transition text-yellow-500">Identity</button>
@@ -93,9 +100,29 @@
     let qrCode;
     let currentTab = 'url';
     let identityLogo = "";
+    let selectedPresetKey = "";
+
+    const presets = {
+        whatsapp: { color: '#25D366', logo: 'https://cdn.simpleicons.org/whatsapp/25D366', placeholder: 'رقم الواتساب (بالكود الدولي)' },
+        facebook: { color: '#1877F2', logo: 'https://cdn.simpleicons.org/facebook/1877F2', placeholder: 'رابط الفيسبوك' },
+        x: { color: '#000000', logo: 'https://cdn.simpleicons.org/x/white', placeholder: 'رابط حساب X' },
+        instagram: { color: '#E4405F', logo: 'https://cdn.simpleicons.org/instagram/E4405F', placeholder: 'رابط انستجرام' },
+        tiktok: { color: '#000000', logo: 'https://cdn.simpleicons.org/tiktok/white', placeholder: 'رابط تيك توك' },
+        youtube: { color: '#FF0000', logo: 'https://cdn.simpleicons.org/youtube/FF0000', placeholder: 'رابط القناة' },
+        googlemaps: { color: '#4285F4', logo: 'https://cdn.simpleicons.org/googlemaps/4285F4', placeholder: 'رابط الموقع' },
+        telegram: { color: '#0088CC', logo: 'https://cdn.simpleicons.org/telegram/0088CC', placeholder: 'رابط تليجرام' },
+        snapchat: { color: '#FFFC00', logo: 'https://cdn.simpleicons.org/snapchat/black', placeholder: 'رابط سناب شات' },
+        linkedin: { color: '#0A66C2', logo: 'https://cdn.simpleicons.org/linkedin/0A66C2', placeholder: 'رابط لينكد إن' }
+    };
 
     const fields = {
         url: `<input type="text" id="m-url" oninput="live()" placeholder="https://example.com" class="input-field">`,
+        social: `
+            <div class="preset-grid">
+                ${Object.keys(presets).map(k => `<button onclick="applyPreset('${k}')" id="btn-${k}" class="preset-btn"><img src="${presets[k].logo}"></button>`).join('')}
+            </div>
+            <input type="text" id="s-main-input" oninput="live()" placeholder="اختر منصة" class="input-field">
+            <div id="wa-extra" class="hidden mt-2"><textarea id="s-wa-msg" oninput="live()" placeholder="رسالة تلقائية..." class="input-field h-16"></textarea></div>`,
         wifi: `<input type="text" id="w-ssid" oninput="live()" placeholder="اسم الشبكة (SSID)" class="input-field">
                <input type="password" id="w-pass" oninput="live()" placeholder="كلمة المرور" class="input-field">`,
         vcard: `<div class="space-y-2">
@@ -122,6 +149,18 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
         document.getElementById('tab-'+t).classList.add('active-tab');
         document.getElementById('dynamic-fields').innerHTML = fields[t];
+        selectedPresetKey = ""; 
+        live();
+    }
+
+    function applyPreset(key) {
+        selectedPresetKey = key;
+        const p = presets[key];
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected-preset'));
+        document.getElementById('btn-'+key).classList.add('selected-preset');
+        document.getElementById('s-main-input').placeholder = p.placeholder;
+        document.getElementById('qr-fill').value = p.color;
+        document.getElementById('wa-extra').classList.toggle('hidden', key !== 'whatsapp');
         live();
     }
 
@@ -158,6 +197,8 @@
 
         if(currentTab === 'url') {
             content.innerHTML = `<div class="m-auto text-center opacity-40 text-[10px] break-all px-4">${document.getElementById('m-url').value || 'أدخل الرابط'}</div>`;
+        } else if(currentTab === 'social' && selectedPresetKey) {
+            content.innerHTML = `<div class="m-auto text-center"><div class="w-16 h-16 mx-auto bg-white p-3 rounded-2xl shadow-xl"><img src="${presets[selectedPresetKey].logo}" class="w-full h-full object-contain"></div><div class="mt-4 text-[10px] opacity-50">${document.getElementById('s-main-input').value}</div></div>`;
         } else if(currentTab === 'wifi') {
             content.innerHTML = `<div class="m-auto text-center"><div class="text-3xl mb-2">📶</div><div class="font-bold">${document.getElementById('w-ssid').value || 'اسم الشبكة'}</div></div>`;
         } else if(currentTab === 'vcard') {
@@ -178,7 +219,15 @@
 
     async function generateFinalMadoQR() {
         let txt = "";
+        let finalLogo = "";
+
         if(currentTab === 'url') txt = document.getElementById('m-url').value;
+        else if(currentTab === 'social' && selectedPresetKey) {
+            const val = document.getElementById('s-main-input').value;
+            if(selectedPresetKey === 'whatsapp') txt = `https://wa.me/${val.replace(/\D/g,'')}?text=${encodeURIComponent(document.getElementById('s-wa-msg').value)}`;
+            else txt = val;
+            finalLogo = presets[selectedPresetKey].logo;
+        }
         else if(currentTab === 'wifi') txt = `WIFI:S:${document.getElementById('w-ssid').value};P:${document.getElementById('w-pass').value};;`;
         else if(currentTab === 'vcard') {
             txt = `BEGIN:VCARD\nVERSION:3.0\nFN:${document.getElementById('vc-fn').value}\nTEL:${document.getElementById('vc-tel').value}\nEMAIL:${document.getElementById('vc-em').value}\nORG:${document.getElementById('vc-org').value}\nEND:VCARD`;
@@ -196,8 +245,11 @@
 
         if(!txt) return;
 
+        // إذا كان هناك لوجو مرفوع يدوياً، له الأولوية
         const logoFile = document.getElementById('qr-logo').files[0];
-        let qrLogo = logoFile ? await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result); rd.readAsDataURL(logoFile); }) : "";
+        if (logoFile) {
+            finalLogo = await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result); rd.readAsDataURL(logoFile); });
+        }
 
         const target = document.getElementById('qr-target');
         target.innerHTML = ""; target.classList.remove('hidden');
@@ -207,10 +259,10 @@
         qrCode = new QRCodeStyling({
             width: 280, height: 280, data: txt,
             qrOptions: { errorCorrectionLevel: 'H', typeNumber: 0 },
-            image: qrLogo,
+            image: finalLogo,
             dotsOptions: { color: document.getElementById('qr-fill').value, type: document.getElementById('dot-style').value },
             backgroundOptions: { color: document.getElementById('qr-bg').value },
-            imageOptions: { imageSize: 0.4, margin: 5 }
+            imageOptions: { imageSize: 0.4, margin: 5, hideBackgroundDots: true }
         });
         qrCode.append(target);
     }
@@ -219,6 +271,7 @@
 
     window.onload = () => {
         switchTab('url');
+        // تفقد إذا كان الرابط يحتوي على بيانات هوية (للشخص الذي سيمسح الكود)
         const h = window.location.hash.substring(1);
         if(h && h.length > 50) {
             try {
@@ -232,18 +285,16 @@
                 
                 document.getElementById('v-links').innerHTML = d.l.map(l => {
                     let finalUrl = l.u.trim();
-                    // تصحيح الرابط أو الهاتف تلقائياً
                     if (/^\+?[0-9\s\-]{8,}$/.test(finalUrl)) {
                         finalUrl = `tel:${finalUrl.replace(/\s/g, '')}`;
                     } else if (!finalUrl.startsWith('http') && !finalUrl.startsWith('mailto:') && !finalUrl.startsWith('tel:')) {
                         finalUrl = `https://${finalUrl}`;
                     }
-
                     return `<a href="${finalUrl}" target="_blank" class="w-full block p-4 rounded-2xl font-bold text-white shadow-lg text-center transition-transform active:scale-95" style="background:${d.a}">
                                 <i class="${getSocialIcon(l.u)} ml-2"></i> ${l.n}
                             </a>`;
                 }).join('');
-            } catch(e) { console.error("Error"); }
+            } catch(e) { console.error("Identity Parse Error"); }
         }
     };
 </script>
