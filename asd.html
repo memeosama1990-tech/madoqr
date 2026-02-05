@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaDo QR Pro | Final Stable Edition</title>
+    <title>MaDo QR Pro | Final Master Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -106,14 +106,14 @@
         </div>`,
         bio: `<div class="space-y-2">
             <div class="flex gap-2"><input type="color" id="acc-c" oninput="live()" value="#3b82f6" class="w-1/2 h-8"><input type="color" id="bg-c" oninput="live()" value="#0f172a" class="w-1/2 h-8"></div>
-            <label class="text-[9px] text-gray-400">صورة الهوية (Identity Logo):</label>
+            <label class="text-[9px] text-gray-400">صورة الهوية الشخصية:</label>
             <input type="file" onchange="loadIdImg(this)" class="input-field text-[10px]">
             <input type="text" id="b-n" oninput="live()" placeholder="الاسم" class="input-field">
-            <textarea id="b-d" oninput="live()" placeholder="النبذة التعريفية..." class="input-field h-16"></textarea>
+            <textarea id="b-d" oninput="live()" placeholder="اكتب نبذة عنك..." class="input-field h-16"></textarea>
             <div id="links-area" class="space-y-1">
-                <div class="flex gap-1"><input type="text" oninput="live()" placeholder="اسم الرابط" class="ln input-field text-[10px]"><input type="text" oninput="live()" placeholder="URL" class="lu input-field text-[10px]"></div>
+                <div class="flex gap-1"><input type="text" oninput="live()" placeholder="اسم الرابط" class="ln input-field text-[10px]"><input type="text" oninput="live()" placeholder="URL أو رقم هاتف" class="lu input-field text-[10px]"></div>
             </div>
-            <button onclick="addLinkRow()" class="text-[10px] text-blue-400 font-bold">+ رابط إضافي</button>
+            <button onclick="addLinkRow()" class="text-[10px] text-blue-400 font-bold">+ إضافة رابط/هاتف</button>
         </div>`
     };
 
@@ -146,6 +146,7 @@
         if(u.includes('twitter') || u.includes('x.com')) return 'fa-brands fa-x-twitter';
         if(u.includes('linkedin')) return 'fa-brands fa-linkedin';
         if(u.includes('whatsapp')) return 'fa-brands fa-whatsapp';
+        if(u.includes('tel:') || /^\+?[0-9]/.test(u)) return 'fa-solid fa-phone';
         return 'fa-solid fa-link';
     }
 
@@ -156,9 +157,9 @@
         bg.style.backgroundColor = "#0f172a";
 
         if(currentTab === 'url') {
-            content.innerHTML = `<div class="m-auto text-center opacity-40 text-[10px]">${document.getElementById('m-url').value || 'أدخل الرابط'}</div>`;
+            content.innerHTML = `<div class="m-auto text-center opacity-40 text-[10px] break-all px-4">${document.getElementById('m-url').value || 'أدخل الرابط'}</div>`;
         } else if(currentTab === 'wifi') {
-            content.innerHTML = `<div class="m-auto text-center"><div class="text-3xl mb-2">📶</div><div class="font-bold">${document.getElementById('w-ssid').value || 'WiFi Name'}</div></div>`;
+            content.innerHTML = `<div class="m-auto text-center"><div class="text-3xl mb-2">📶</div><div class="font-bold">${document.getElementById('w-ssid').value || 'اسم الشبكة'}</div></div>`;
         } else if(currentTab === 'vcard') {
             content.innerHTML = `<div class="m-auto text-center w-full"><div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl">👤</div><h4 class="font-bold">${document.getElementById('vc-fn').value || "الاسم"}</h4></div>`;
         } else if(currentTab === 'bio') {
@@ -182,20 +183,18 @@
         else if(currentTab === 'vcard') {
             txt = `BEGIN:VCARD\nVERSION:3.0\nFN:${document.getElementById('vc-fn').value}\nTEL:${document.getElementById('vc-tel').value}\nEMAIL:${document.getElementById('vc-em').value}\nORG:${document.getElementById('vc-org').value}\nEND:VCARD`;
         } else if(currentTab === 'bio') {
-            // ضغط مبدئي للبيانات لتجنب كسر الباركود
             const data = { 
                 n: document.getElementById('b-n').value, 
                 d: document.getElementById('b-d').value, 
                 a: document.getElementById('acc-c').value, 
                 b: document.getElementById('bg-c').value, 
-                i: identityLogo.length > 3000 ? "img-too-large" : identityLogo, // حد أمان للـ Base64
+                i: identityLogo.length > 5000 ? "" : identityLogo, 
                 l: Array.from(document.querySelectorAll('.ln')).map((n, i) => ({ n: n.value, u: document.querySelectorAll('.lu')[i].value })).filter(x => x.n) 
             };
-            if(data.i === "img-too-large") alert("تنبيه: صورة الهوية كبيرة جداً، قد لا يعمل الباركود بشكل جيد. يفضل استخدام صور صغيرة الحجم.");
             txt = window.location.href.split('#')[0] + "#" + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
         }
 
-        if(!txt) { alert("أدخل بيانات أولاً"); return; }
+        if(!txt) return;
 
         const logoFile = document.getElementById('qr-logo').files[0];
         let qrLogo = logoFile ? await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result); rd.readAsDataURL(logoFile); }) : "";
@@ -211,7 +210,7 @@
             image: qrLogo,
             dotsOptions: { color: document.getElementById('qr-fill').value, type: document.getElementById('dot-style').value },
             backgroundOptions: { color: document.getElementById('qr-bg').value },
-            imageOptions: { imageSize: 0.4, margin: 5, crossOrigin: "anonymous" }
+            imageOptions: { imageSize: 0.4, margin: 5 }
         });
         qrCode.append(target);
     }
@@ -227,11 +226,24 @@
                 document.getElementById('creator-ui').style.display='none';
                 document.getElementById('viewer-ui').classList.remove('hidden');
                 document.body.style.background = d.b;
-                document.getElementById('v-img-box').innerHTML = (d.i && d.i !== "img-too-large") ? `<img src="${d.i}" class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl object-cover">` : `<div class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl flex items-center justify-center text-4xl" style="background:${d.a}">👤</div>`;
+                document.getElementById('v-img-box').innerHTML = d.i ? `<img src="${d.i}" class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl object-cover">` : `<div class="w-24 h-24 rounded-[2rem] mx-auto shadow-2xl flex items-center justify-center text-4xl" style="background:${d.a}">👤</div>`;
                 document.getElementById('v-name').innerText = d.n;
                 document.getElementById('v-desc').innerText = d.d;
-                document.getElementById('v-links').innerHTML = d.l.map(l => `<a href="${l.u}" class="w-full block p-4 rounded-2xl font-bold text-white shadow-lg text-center" style="background:${d.a}"><i class="${getSocialIcon(l.u)} ml-2"></i> ${l.n}</a>`).join('');
-            } catch(e) { console.error("Identity Error"); }
+                
+                document.getElementById('v-links').innerHTML = d.l.map(l => {
+                    let finalUrl = l.u.trim();
+                    // تصحيح الرابط أو الهاتف تلقائياً
+                    if (/^\+?[0-9\s\-]{8,}$/.test(finalUrl)) {
+                        finalUrl = `tel:${finalUrl.replace(/\s/g, '')}`;
+                    } else if (!finalUrl.startsWith('http') && !finalUrl.startsWith('mailto:') && !finalUrl.startsWith('tel:')) {
+                        finalUrl = `https://${finalUrl}`;
+                    }
+
+                    return `<a href="${finalUrl}" target="_blank" class="w-full block p-4 rounded-2xl font-bold text-white shadow-lg text-center transition-transform active:scale-95" style="background:${d.a}">
+                                <i class="${getSocialIcon(l.u)} ml-2"></i> ${l.n}
+                            </a>`;
+                }).join('');
+            } catch(e) { console.error("Error"); }
         }
     };
 </script>
